@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "id": "example-catalog-search",
+  "name": "Catalog search and export",
+  "description": "Search the included local demo catalog, collect records across a bounded number of pages, and export CSV.",
+  "starting_url": "http://127.0.0.1:8000/demo/catalog",
+  "parameters": [
+    {"name": "search_term", "label": "Search term", "type": "text", "required": true, "default": "desk"},
+    {"name": "max_pages", "label": "Maximum pages", "type": "number", "required": false, "default": 3}
+  ],
+  "steps": [
+    {"id": "navigate", "action": "navigate", "description": "Open the starting page", "url": "http://127.0.0.1:8000/demo/catalog"},
+    {"id": "fill-search", "action": "fill", "description": "Enter the search term", "locator": {"strategy": "label", "value": "Search products"}, "value_ref": "search_term"},
+    {"id": "submit-search", "action": "click", "description": "Submit the product search", "locator": {"strategy": "role", "value": "button", "name": "Search", "exact": true}},
+    {"id": "wait-results", "action": "wait_for", "description": "Wait for product results", "condition": {"kind": "visible", "locator": {"strategy": "css", "value": ".product-card"}}},
+    {"id": "extract-products", "action": "extract_records", "description": "Collect product fields", "record_locator": {"strategy": "css", "value": ".product-card"}, "fields": [{"name": "name", "locator": {"strategy": "css", "value": "[data-testid='product-name']"}}, {"name": "price", "locator": {"strategy": "css", "value": "[data-testid='product-price']"}}, {"name": "url", "locator": {"strategy": "css", "value": "a.product-link"}, "attribute": "href"}], "pagination": {"next_locator": {"strategy": "role", "value": "link", "name": "Next", "exact": true}, "max_pages": "max_pages"}, "output_key": "records"},
+    {"id": "save-screenshot", "action": "screenshot", "description": "Capture the final page"},
+    {"id": "export-results", "action": "export", "description": "Export records to CSV", "output_key": "records", "filename": "product-results.csv", "export_format": "csv"}
+  ],
+  "expected_outputs": ["records", "product-results.csv"]
+}
+
